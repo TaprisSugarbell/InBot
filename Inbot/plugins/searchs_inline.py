@@ -45,7 +45,7 @@ async def tag_code(_tags: str):
 
 
 def image_append(_dats: tuple, is_gif: bool = False):
-    info, _mode, _tag_code, url, thumb_url, _id = _dats
+    info, _mode, _tag_code, url, thumb_url = _dats
     _has_parent = True if info.parent_id or info.has_children else False
     Pbtns = post_buttons(
                 info.id,
@@ -57,14 +57,12 @@ def image_append(_dats: tuple, is_gif: bool = False):
         _iq = InlineQueryResultAnimation(
             url,
             thumb_url,
-            _id,
             reply_markup=Pbtns
         )
     else:
         _iq = InlineQueryResultPhoto(
             url,
             thumb_url,
-            _id,
             reply_markup=Pbtns
         )
     return _iq
@@ -215,7 +213,7 @@ async def __safebooru__(bot, update):
                     if thumb_url:
                         _id = f'{_mode}_{xsa(info, "id")}'
                         _get_tag_code = await tag_code(__tags)
-                        _dts = info, _mode, _get_tag_code, url, thumb_url, _id
+                        _dts = info, _mode, _get_tag_code, url, thumb_url
                         if info.file_ext == "gif":
                             imgs.append(
                                 image_append(_dts, True)
@@ -225,12 +223,13 @@ async def __safebooru__(bot, update):
                                 image_append(_dts)
                             )
     if bsq:
+        next_offset = str(offset + 1)
         try:
             await bot.answer_inline_query(query_id,
                                           imgs,
                                           cache_time=10,
                                           is_gallery=True,
-                                          next_offset=str(offset + 1))
+                                          next_offset=next_offset)
         except Exception as e:
             print(e)
             print("bsq")
