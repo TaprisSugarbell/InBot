@@ -232,8 +232,6 @@ async def __safebooru__(bot, update):
                                           next_offset=next_offset)
         except Exception as e:
             print(e)
-            print("bsq")
-            raise
     elif bsqe:
         try:
             await bot.answer_inline_query(query_id,
