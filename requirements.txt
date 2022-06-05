@@ -1,0 +1,9 @@
+danbooru
+dnspython
+pymongo
+pyrogram
+pyromod
+python-decouple
+requests
+TgCrypto
+
