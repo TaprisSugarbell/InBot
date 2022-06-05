@@ -99,7 +99,8 @@ async def __safebooru__(bot, update):
     _mode = "sfw" if "safe" in _host else "nsfw"
     try:
         offset = int(update.offset)
-    except ValueError:
+    except Exception as e:
+        print(e)
         offset = 1
     next_offset = lambda x: str(x + 1)
     xsa = lambda x, y: getattr(x, y)
@@ -243,7 +244,6 @@ async def __safebooru__(bot, update):
                                           is_gallery=True)
         except Exception as e:
             print(e)
-            print("bsqe")
 
     else:
         try:
@@ -251,8 +251,6 @@ async def __safebooru__(bot, update):
                                           imgs)
         except Exception as e:
             print(e)
-            print(";-;")
-
 
 
 # @Client.on_chosen_inline_result()
