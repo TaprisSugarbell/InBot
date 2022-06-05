@@ -1,1 +1,1 @@
-web: python3 InBot/main.py
+web: python3 Inbot/main.py
