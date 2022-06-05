@@ -23,7 +23,7 @@
          "description":"Obtener de my.telegram.org",
          "value":""
       },
-      "MONGO_URI":{
+      "MONGO_URL":{
          "description":"URI de MongoDB",
          "value":""
       }
