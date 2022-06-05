@@ -99,10 +99,8 @@ async def __safebooru__(bot, update):
     _mode = "sfw" if "safe" in _host else "nsfw"
     try:
         offset = int(update.offset)
-    except Exception as e:
-        print(e)
+    except ValueError:
         offset = 1
-    next_offset = lambda x: str(x + 1)
     xsa = lambda x, y: getattr(x, y)
     if len(query.strip()) == 0:
         bsq = dbr.searchs(limit=50, page=offset)
@@ -232,7 +230,7 @@ async def __safebooru__(bot, update):
                                           imgs,
                                           cache_time=10,
                                           is_gallery=True,
-                                          next_offset=next_offset(offset))
+                                          next_offset=str(offset + 1))
         except Exception as e:
             print(e)
             print("bsq")
