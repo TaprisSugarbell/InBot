@@ -1,0 +1,45 @@
+{
+   "name":"InBot",
+   "description":"Este bot deja ver imgs de danbooru...",
+   "logo":"https://i.imgur.com/S4Zlx0G.png",
+   "keywords":[
+      "Danbooru",
+      "Image",
+      "Telegram Bot",
+      "SayuOgiwara"
+   ],
+   "repository":"https://github.com/TaprisSugarbell/SayuDownloaderBot",
+   "success_url":"https://telegram.dog/SayuCodez",
+   "env":{
+      "BOT_TOKEN":{
+         "description":"Tu Token de Telegram de @BotFather",
+         "value":""
+      },
+      "API_ID":{
+         "description":"Obtener de my.telegram.org",
+         "value":""
+      },
+      "API_HASH":{
+         "description":"Obtener de my.telegram.org",
+         "value":""
+      },
+      "MONGO_URI":{
+         "description":"URI de MongoDB",
+         "value":""
+      }
+   },
+   "buildpacks":[
+      {
+         "url":"https://github.com/opendoor-labs/heroku-buildpack-p7zip"
+      },
+      {
+         "url":"heroku/python"
+      }
+   ],
+   "formation":{
+      "worker":{
+         "quantity":1,
+         "size":"free"
+      }
+   }
+}
