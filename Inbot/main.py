@@ -7,7 +7,6 @@ from decouple import config
 API_ID = config("API_ID", default=None, cast=int)
 API_HASH = config("API_HASH", default=None)
 BOT_TOKEN = config("BOT_TOKEN", default=None)
-SAYU_PYRO = config("SAYU_PYRO", default=None)
 
 if __name__ == "__main__":
     nb = "Inbot"

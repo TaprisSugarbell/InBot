@@ -234,6 +234,7 @@ async def __safebooru__(bot, update):
                                           next_offset=next_offset(offset))
         except Exception as e:
             print(e)
+            print("bsq")
     elif bsqe:
         try:
             await bot.answer_inline_query(query_id,
@@ -242,6 +243,7 @@ async def __safebooru__(bot, update):
                                           is_gallery=True)
         except Exception as e:
             print(e)
+            print("bsqe")
 
     else:
         try:
@@ -249,6 +251,7 @@ async def __safebooru__(bot, update):
                                           imgs)
         except Exception as e:
             print(e)
+            print(";-;")
 
 
 
