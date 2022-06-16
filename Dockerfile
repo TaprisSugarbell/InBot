@@ -1,7 +1,4 @@
 FROM python:3.10.0
-RUN apk add --no-cache \
-    zlib-dev \
-    ffmpeg
 
 WORKDIR /InBot
 
