@@ -6,4 +6,5 @@ COPY requirements.txt .
 RUN pip install -Ur requirements.txt
 
 COPY . .
-CMD python InBot/main.py
+CMD ls
+CMD python InBot/InBot/main.py
