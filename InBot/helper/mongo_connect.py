@@ -1,16 +1,12 @@
-import os
-import json
-import pymongo.errors
 from decouple import config
 from pymongo import MongoClient
-
 
 # Variables
 URI = config("MONGO_URL", default=None)
 
 
 class Mongo:
-    def __init__(self, uri="", database="", collection="", data={} or []):
+    def __init__(self, uri=URI, database="", collection="", data={} or []):
         self.data = data
         self.client = MongoClient(uri)
         self.db = self.client.get_database(database)
@@ -49,12 +45,12 @@ class Mongo:
         elif isinstance(self.data, dict):
             return self.collect.insert_one(self.data)
 
-    def update(self, old_data=None, new_data=None):
+    def update_many(self, old_data=None, new_data=None):
         if new_data is None:
             new_data = {}
         if old_data is None:
             old_data = {}
-        return self.collect.update(old_data, {'$set': new_data})
+        return self.collect.update_many(old_data, {'$set': new_data})
 
     def update_one(self, old_data=None, new_data=None):
         if new_data is None:
@@ -63,10 +59,10 @@ class Mongo:
             old_data = {}
         return self.collect.update_one(old_data, {'$set': new_data})
 
-    def delete_many(self, data=None):
+    def delete_many(self, data=None, new_data=None):
         if data is None:
             data = {}
-        return self.collect.delete_many(data)
+        return self.collect.delete_many(data, {'$set': new_data})
 
     def delete_one(self, data=None):
         if data is None:
@@ -80,18 +76,32 @@ async def confirm(user_db, data=None):
     return user_db.find(data)
 
 
+async def confirm_one(user_db, data=None):
+    if data is None:
+        data = {}
+    return user_db.find_one(data)
+
+
 async def add_(user_db, data=None):
     if data is None:
         data = {}
     return user_db.insert_one(data)
 
 
-async def update_(user_db, old_data=None, new_data=None):
+async def update_one(user_db, old_data=None, new_data=None):
     if old_data is None:
         old_data = {}
     if new_data is None:
         new_data = {}
     return user_db.update_one(old_data, new_data)
+
+
+async def update_many(user_db, old_data=None, new_data=None):
+    if old_data is None:
+        old_data = {}
+    if new_data is None:
+        new_data = {}
+    return user_db.update_many(old_data, new_data)
 
 
 async def remove_(user_db, data=None):

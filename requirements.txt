@@ -4,6 +4,7 @@ pymongo
 pyrogram
 pyromod
 python-decouple
+PyYAML
 requests
 TgCrypto
 

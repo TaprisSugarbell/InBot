@@ -94,9 +94,9 @@ async def __ch__(bot, update):
             new_host = "danbooru"
         else:
             new_host = "safebooru"
-        await update_(db,
-                      {"user_id": user_id},
-                      {"host": new_host})
+        await update_one(db,
+                         {"user_id": user_id},
+                         {"host": new_host})
         if "safe" in new_host:
             _mode = "🔞 NSFW 🔞"
             __o = "💮 SFW 💮"
@@ -215,7 +215,7 @@ async def __ch_username__(bot, update):
     _udt = {
             _md: mssg.text
         }
-    await update_(
+    await update_one(
         db,
         {
             "user_id": user_id
