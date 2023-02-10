@@ -1,2 +1,2 @@
-web: python3 Inbot/main.py
-worker: python3 Inbot/main.py
+web: python3 InBot/main.py
+worker: python3 InBot/main.py

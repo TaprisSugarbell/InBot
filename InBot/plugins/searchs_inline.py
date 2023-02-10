@@ -1,15 +1,17 @@
 import re
+import time
 import string
 import logging
+import asyncio
 import traceback
 import cloudscraper
 from .. import queue_
 import pyrogram.errors
 # from ..helper import *
+from ..helper.utils import tag_code
 from danbooru.exceptions import *
 from pyrogram import Client, filters
 from ..helper.mongo_connect import *
-from danbooru.booru import random_key
 from ..helper.__inline_butns__ import *
 from ..helper.__vars__ import __error_404__
 from danbooru import Danbooru, arm_links, arm_link
@@ -27,48 +29,31 @@ db = Mongo(URI, "DanbooruBot", "user_settings")
 requests = cloudscraper.create_scraper(cloudscraper.Session())
 
 
-async def tag_code(_tags: str):
-    _c = await confirm(
-        tc,
-        {
-            "tags": _tags
-        }
-    )
-    if _c:
-        _c = _c[0]
-        _tags_code = _c["tags_code"]
-    else:
-        _tags_code = random_key(8)
-        await add_(
-            tc,
-            {
-                "tags": _tags,
-                "tags_code": _tags_code
-            }
-        )
-    return _tags_code
-
-
-def image_append(_dats: tuple):
+async def image_append(_dats: tuple):
     info, _mode, _tag_code, url, thumb_url = _dats
+    if _tag_code == "":
+        _tag_code = "0"
     _has_parent = bool(info.parent_id or info.has_children)
     xsa = lambda x, y: getattr(x, y)
     Pbtns = post_buttons(info.id, _mode, _tag_code, _has_parent)
-    if info.file_ext in ["png", "jpg", "jpeg"]:
-        return InlineQueryResultPhoto(url, thumb_url, reply_markup=Pbtns)
-    elif info.file_ext == "gif":
-        return InlineQueryResultAnimation(url, thumb_url=thumb_url, reply_markup=Pbtns)
-    else:
-        return InlineQueryResultVideo(url, thumb_url, str(xsa(info, "id")), reply_markup=Pbtns)
-
+    match info.file_ext:
+        case "png" | "jpg" | "jpeg":
+            return InlineQueryResultPhoto(url, thumb_url, reply_markup=Pbtns)
+        case "gif":
+            return InlineQueryResultAnimation(url, thumb_url=thumb_url, reply_markup=Pbtns)
+        case _:
+            return InlineQueryResultVideo(url, thumb_url, str(xsa(info, "id")), reply_markup=Pbtns)
 
 
 @Client.on_inline_query()
 async def __safebooru__(bot, update):
     print(update)
+    _start = time.perf_counter()
     bsq = None
     bsqe = None
     imgs = []
+    tasks = []
+    __tags = ""
     query_id = update.id
     query = update.query
     user_id = update.from_user.id
@@ -79,11 +64,11 @@ async def __safebooru__(bot, update):
         _api_key = user_settings["api_key"]
         _password = user_settings["password"]
         _host = user_settings["host"]
-        dbr = Danbooru(_username, _api_key, _password, host=_host)
+        dbr = Danbooru(_username, _api_key, _password, host=_host, _session={"user-agent": "danbooru/0.0.9"})
         # print(_username, _api_key, _password, _host)
     else:
         _host = "safebooru"
-        dbr = Danbooru(host=_host)
+        dbr = Danbooru(host=_host, _session={"user-agent": "danbooru/0.0.9"})
         await add_(db, {"user_id": user_id,
                         "username": None,
                         "api_key": None,
@@ -99,35 +84,21 @@ async def __safebooru__(bot, update):
         bsq = dbr.searchs(limit=50, page=offset)
         searchs = arm_links(bsq, "large_file_url", ())
         search_thumbs = arm_links(bsq, "preview_file_url")
+        _tag_code = await tag_code(__tags)
         for (info, url), thumb_url in zip(searchs, search_thumbs):
             if thumb_url:
-                _id = f'{_mode}_{xsa(info, "id")}'
-                if info.file_ext in ["png", "jpg", "jpeg"]:
-                    imgs.append(
-                        InlineQueryResultPhoto(
-                            url,
-                            thumb_url=thumb_url,
-                            id=_id
-                        )
-                    )
-                elif info.file_ext == "gif":
-                    imgs.append(
-                        InlineQueryResultAnimation(
-                            url,
-                            thumb_url=thumb_url,
-                            id=_id
-                        )
-                    )
-                else:
-                    imgs.append(
-                        InlineQueryResultVideo(
-                            url,
-                            thumb_url,
-                            str(xsa(info, "id")),
-                            _id
-                        )
-                    )
-
+                # _get_tag_code = await tag_code(__tags)
+                _dts = info, _mode, _tag_code, url, thumb_url
+                tasks.append(asyncio.create_task(image_append(_dts)))
+                # imgs.append()
+                # _id = f'{_mode}_{xsa(info, "id")}'
+        #         _dts = info, _mode, __tags, url, thumb_url
+        #         imgs.append(
+        #             image_append(_dts)
+        #         )
+        #         imgs.append(
+        #             executor.submit(image_append, _dts).result()
+        #         )
     else:
         try:
             bsqe = dbr.post(post_id=int(query))
@@ -139,34 +110,9 @@ async def __safebooru__(bot, update):
                 search_thumbs.append(arm_link(bsqe, "preview_file_url", ()))
             for (info, url), thumb_url in zip(searchs, search_thumbs):
                 if thumb_url:
-                    _id = f'{_mode}_{xsa(info, "id")}'
-                    if info.file_ext in ["png", "jpg", "jpeg"]:
-                        imgs.append(
-                            InlineQueryResultPhoto(
-                                url,
-                                thumb_url=thumb_url,
-                                id=_id
-                            )
-                        )
-                    elif info.file_ext == "gif":
-                        imgs.append(
-                            InlineQueryResultAnimation(
-                                url,
-                                thumb_url=thumb_url,
-                                id=_id
-                            )
-                        )
-                    else:
-                        imgs.append(
-                            InlineQueryResultVideo(
-                                url,
-                                thumb_url,
-                                str(xsa(info, "id")),
-                                _id
-                            )
-                        )
+                    _dts = info, _mode, __tags, url, thumb_url
+                    tasks.append(asyncio.create_task(image_append(_dts)))
         except ValueError:
-            __tags = ""
             if query.strip() == "random":
                 bsq = dbr.searchs(limit=50, random=True)
             elif "random" in query.strip():
@@ -222,14 +168,14 @@ async def __safebooru__(bot, update):
             elif bsq:
                 searchs = arm_links(bsq, "large_file_url", ())
                 search_thumbs = arm_links(bsq, "preview_file_url")
+                _tag_code = await tag_code(__tags)
                 for (info, url), thumb_url in zip(searchs, search_thumbs):
                     if thumb_url:
-                        _id = f'{_mode}_{xsa(info, "id")}'
-                        _get_tag_code = await tag_code(__tags)
-                        _dts = info, _mode, _get_tag_code, url, thumb_url
-                        imgs.append(
-                            image_append(_dts)
-                        )
+                        _dts = info, _mode, _tag_code, url, thumb_url
+                        tasks.append(asyncio.create_task(image_append(_dts)))
+    if tasks:
+        imgs.extend(await asyncio.gather(*tasks))
+        print(f"Todo subido en {round(time.perf_counter() - _start, 3)}s :3")
     print(len(imgs))
     if bsq:
         next_offset = str(offset + 1)
@@ -241,7 +187,6 @@ async def __safebooru__(bot, update):
                                           next_offset=next_offset)
         except Exception as e:
             print(e)
-            traceback.print_exception(e)
     elif bsqe:
         try:
             await bot.answer_inline_query(query_id,
@@ -284,26 +229,26 @@ async def __safebooru__(bot, update):
 #                 media=InputMediaPhoto(lnk[1], f'https://{_booru.host}.donmai.us/posts/{xsa(lnk[0], "id")}'))
 
 
-@Client.on_callback_query(filters.regex(r"sfw_\d*"))
-async def __callback_safe__(bot, update):
-    print(update)
-    __tags = ""
-    user_id = update.from_user.id
-    inline_message_id = update.inline_message_id
-    _mode, seq, _tags_code, post_id = (_ for _ in update.data.split("_"))
-    queue_.put(
-        (
-            0,
-            {
-                "user_id": user_id,
-                "inline_message_id": inline_message_id,
-                "mode": _mode,
-                "seq": seq,
-                "tag_code": _tags_code,
-                "post_id": post_id
-            }
-         )
-    )
+# @Client.on_callback_query(filters.regex(r"sfw_\d*"))
+# async def __callback_safe__(bot, update):
+#     print(update)
+#     __tags = ""
+#     user_id = update.from_user.id
+#     inline_message_id = update.inline_message_id
+#     _mode, seq, _tags_code, post_id = (_ for _ in update.data.split("_"))
+#     queue_.put(
+#         (
+#             0,
+#             {
+#                 "user_id": user_id,
+#                 "inline_message_id": inline_message_id,
+#                 "mode": _mode,
+#                 "seq": seq,
+#                 "tag_code": _tags_code,
+#                 "post_id": post_id
+#             }
+#          )
+#     )
     # _c_ = await confirm(db, {"user_id": user_id})
     # if _c_:
     #     user_settings = _c_[0]

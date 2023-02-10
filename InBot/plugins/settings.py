@@ -85,10 +85,10 @@ async def __ch__(bot, update):
     print(update)
     chat_id = update.message.chat.id
     user_id = update.from_user.id
-    message_id = update.message.message_id
-    _c = await confirm(db, {"user_id": user_id})
-    if _c:
-        user_settings = _c[0]
+    message_id = update.message.id
+    user_settings = await confirm_one(db, {"user_id": user_id})
+    if user_settings:
+        # user_settings = _c[0]
         _host = user_settings["host"]
         if _host == "safebooru":
             new_host = "danbooru"

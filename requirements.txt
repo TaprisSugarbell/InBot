@@ -1,5 +1,7 @@
 danbooru
 dnspython
+motor
+motor[srv]
 pymongo
 pyrogram
 pyromod

@@ -1,13 +1,7 @@
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
-_config = InlineKeyboardMarkup(
-    [
-        [
-            InlineKeyboardButton("", "")
-        ]
-    ]
-)
+_config = []
 
 
 def post_buttons(post_id: int, _mode: str = "safe", _tag_code: str = "0", _has_parent: bool = None):
