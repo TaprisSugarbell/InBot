@@ -3,6 +3,7 @@ import time
 import string
 import logging
 import asyncio
+import sys
 import traceback
 import cloudscraper
 from .. import queue_
@@ -47,7 +48,6 @@ async def image_append(_dats: tuple):
 
 @Client.on_inline_query()
 async def __safebooru__(bot, update):
-    print(update)
     _start = time.perf_counter()
     bsq = None
     bsqe = None
@@ -61,14 +61,15 @@ async def __safebooru__(bot, update):
     if _c:
         user_settings = _c[0]
         _username = user_settings["username"]
-        _api_key = user_settings["api_key"]
+        _api_key = "YvA3fGthBXHpwZegzPuRdfia"
+        # _api_key = user_settings["api_key"]
         _password = user_settings["password"]
         _host = user_settings["host"]
-        dbr = Danbooru(_username, _api_key, _password, host=_host, _session={"user-agent": "danbooru/0.0.9"})
+        dbr = Danbooru(_username, _api_key, _password, host=_host)
         # print(_username, _api_key, _password, _host)
     else:
         _host = "safebooru"
-        dbr = Danbooru(host=_host, _session={"user-agent": "danbooru/0.0.9"})
+        dbr = Danbooru(host=_host)
         await add_(db, {"user_id": user_id,
                         "username": None,
                         "api_key": None,

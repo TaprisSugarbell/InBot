@@ -6,7 +6,7 @@ from decouple import config
 from InBot.strings import get_string
 
 # Version
-__version__tuple__ = ("0", "0", "1")
+__version__tuple__ = ("0", "0", "9")
 
 __version__ = ".".join(__version__tuple__)
 __version_short__ = ".".join(__version__tuple__[:-1])

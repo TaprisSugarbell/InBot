@@ -8,7 +8,7 @@ except ImportError:
 from typing import Any
 
 
-LANGUAGE = config("LANGUAGE", default="es")
+LANGUAGE = config("LG", default="es")
 
 
 def get_string(key: str) -> Any:
