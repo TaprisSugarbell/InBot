@@ -165,8 +165,7 @@ async def __safebooru__(bot, update):
                         tasks.append(asyncio.create_task(image_append(_dts)))
     if tasks:
         imgs.extend(await asyncio.gather(*tasks))
-        print(f"Todo subido en {round(time.perf_counter() - _start, 3)}s :3")
-    print(len(imgs))
+        # print(f"Todo subido en {round(time.perf_counter() - _start, 3)}s :3")
     if bsq:
         next_offset = str(offset + 1)
         try:
