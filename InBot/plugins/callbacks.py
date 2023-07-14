@@ -36,10 +36,10 @@ async def __callback_safe__(bot, update):
         _api_key = user_settings["api_key"]
         _password = user_settings["password"]
         _host = user_settings["host"]
-        dbr = Danbooru(_username, _api_key, _password, host=_host, _session={"user-agent": "danbooru/0.0.9"})
+        dbr = Danbooru(_username, _api_key, _password, host=_host)
     else:
         _host = "safebooru"
-        dbr = Danbooru(host=_host, _session={"user-agent": "danbooru/0.0.9"})
+        dbr = Danbooru(host=_host)
         await add_(db, {"user_id": user_id,
                         "username": None,
                         "api_key": None,

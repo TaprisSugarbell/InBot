@@ -61,8 +61,7 @@ async def __safebooru__(bot, update):
     if _c:
         user_settings = _c[0]
         _username = user_settings["username"]
-        _api_key = "YvA3fGthBXHpwZegzPuRdfia"
-        # _api_key = user_settings["api_key"]
+        _api_key = user_settings["api_key"]
         _password = user_settings["password"]
         _host = user_settings["host"]
         dbr = Danbooru(_username, _api_key, _password, host=_host)
@@ -88,23 +87,13 @@ async def __safebooru__(bot, update):
         _tag_code = await tag_code(__tags)
         for (info, url), thumb_url in zip(searchs, search_thumbs):
             if thumb_url:
-                # _get_tag_code = await tag_code(__tags)
                 _dts = info, _mode, _tag_code, url, thumb_url
                 tasks.append(asyncio.create_task(image_append(_dts)))
-                # imgs.append()
-                # _id = f'{_mode}_{xsa(info, "id")}'
-        #         _dts = info, _mode, __tags, url, thumb_url
-        #         imgs.append(
-        #             image_append(_dts)
-        #         )
-        #         imgs.append(
-        #             executor.submit(image_append, _dts).result()
-        #         )
     else:
         try:
             bsqe = dbr.post(post_id=int(query))
-            searchs = [arm_link(bsqe, "preview_file_url", ())]
-            search_thumbs = [arm_link(bsqe, "large_file_url")]
+            searchs = [arm_link(bsqe, "large_file_url", ())]
+            search_thumbs = [arm_link(bsqe, "preview_file_url")]
             if bsqe.parent_id:
                 bsqe = dbr.post(post_id=bsqe.parent_id)
                 searchs.append(arm_link(bsqe, "large_file_url", ()))
